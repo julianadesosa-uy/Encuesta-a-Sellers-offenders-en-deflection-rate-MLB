@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta Seller offenders MLB</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #3483fa;
+            --secondary-color: #2968c8;
+            --accent-color: #ff6b35;
+            --text-dark: #333;
+            --text-light: #666;
+            --bg-light: #f5f5f5;
+            --bg-white: #ffffff;
+            --border-color: #e0e0e0;
+            --success-color: #00a650;
+            --warning-color: #ffb340;
+            --danger-color: #ff4757;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            padding-top: 150px;
+        }
+
+        p {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 1rem 0;
+            padding-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        header .fecha-envio {
+            text-align: center;
+            font-size: 0.75rem;
+            opacity: 0.95;
+            margin-top: 0.75rem;
+            line-height: 1.4;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        header .fecha {
+            text-align: center;
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+
+        /* Preguntas abiertas bullets - mismo estilo que nav */
+        #preguntas-abiertas ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            padding: 0;
+            margin: 2rem 0 0 0;
+        }
+
+        #preguntas-abiertas li {
+            margin: 0;
+        }
+
+        #preguntas-abiertas .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 1rem 0.75rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            display: block;
+            text-align: center;
+            font-weight: 500;
+            font-size: 0.85rem;
+            line-height: 1.3;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #preguntas-abiertas .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #5a9fff 0%, #4a7dd8 100%);
+            opacity: 0.9;
+        }
+
+        #preguntas-abiertas .nav-link:active,
+        #preguntas-abiertas .nav-link.active {
+            background: linear-gradient(135deg, #6ba8ff 0%, #5b8de8 100%);
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Sections */
+        section {
+            background: var(--bg-white);
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        /* Títulos fijos en secciones de análisis */
+        section[id^="analisis-"] {
+            padding-top: 0;
+        }
+
+        section[id^="analisis-"] h2 {
+            position: sticky;
+            top: 150px;
+            background: var(--bg-white);
+            z-index: 100;
+            padding: 1rem 2rem;
+            margin: 0 -2rem 1.5rem -2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        section h3 {
+            color: var(--secondary-color);
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.4rem;
+        }
+
+        section h4 {
+            color: var(--secondary-color);
+            margin: 1rem 0 0.5rem 0;
+            font-size: 1.2rem;
+        }
+
+        /* Resumen Principales Hallazgos */
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .resumen-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .resumen-card h4 {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .resumen-card .valor {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-button:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+        }
+
+        .chart-wrapper {
+            background: var(--bg-white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        /* Clasificaciones */
+        .clasificacion-item {
+            background: var(--bg-light);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .clasificacion-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .clasificacion-item .count {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Ejemplos de comentarios */
+        .ejemplo-comentario {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+            position: relative;
+        }
+
+        .ejemplo-comentario::before {
+            content: '"';
+            font-size: 4rem;
+            color: var(--accent-color);
+            opacity: 0.2;
+            position: absolute;
+            top: 0.5rem;
+            left: 1rem;
+        }
+
+        .ejemplo-comentario p {
+            position: relative;
+            z-index: 1;
+            font-style: italic;
+            color: var(--text-dark);
+        }
+
+        /* Frustraciones */
+        .frustracion-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: var(--bg-light);
+            border-radius: 4px;
+        }
+
+        .frustracion-item .bar {
+            flex: 1;
+            height: 30px;
+            background: var(--primary-color);
+            margin: 0 1rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Issue cards */
+        .issue-card {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .issue-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .issue-card .count {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .issue-card .comentarios {
+            margin-top: 1rem;
+        }
+
+        .issue-card .comentarios ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .issue-card .comentarios li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .issue-card .comentarios li:last-child {
+            border-bottom: none;
+        }
+
+        /* Hallazgos principales */
+        .hallazgo-card {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .hallazgo-card h4 {
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Gauge Charts */
+        .gauge-section {
+            background: #f8f9fa;
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Primera sección con fondo gris claro - ajustes específicos */
+        #resultados-cuantitativos {
+            padding: 1.25rem 2rem;
+        }
+
+        .gauge-questions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .gauge-question {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .gauge-wrapper {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0;
+        }
+
+        .bar-chart-container {
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.6rem;
+            gap: 0.75rem;
+        }
+
+        .bar-label {
+            font-size: 0.75rem;
+            color: var(--text-dark);
+            width: 140px;
+            text-align: right;
+            font-weight: normal;
+            padding-right: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .bar-wrapper {
+            flex: 1;
+            position: relative;
+            height: 24px;
+            background: var(--bg-light);
+            border-radius: 4px;
+            overflow: hidden;
+            max-width: 100%;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 4px;
+            position: relative;
+            transition: width 0.3s ease;
+            min-width: 40px;
+        }
+
+        .bar-percentage {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7rem;
+            color: white;
+            font-weight: 500;
+            white-space: nowrap;
+            z-index: 1;
+        }
+
+        .bar-fill[style*="width: 6%"],
+        .bar-fill[style*="width: 11%"],
+        .bar-fill[style*="width: 17%"],
+        .bar-fill[style*="width: 18%"],
+        .bar-fill[style*="width: 24%"] {
+            min-width: 50px;
+        }
+
+        .bar-chart-legend {
+            display: none;
+        }
+
+        /* Botón Volver al Inicio */
+        .volver-inicio {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+                font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(52, 131, 250, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .volver-inicio:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(52, 131, 250, 0.5);
+        }
+
+        .volver-inicio:active {
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .resumen-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                width: 100%;
+                text-align: left;
+            }
+
+            .gauge-questions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bar-label {
+                width: 100px;
+                font-size: 0.7rem;
+                padding-right: 0.5rem;
+            }
+
+            .bar-wrapper {
+                height: 20px;
+            }
+
+            .bar-percentage {
+                font-size: 0.65rem;
+            }
+
+            #preguntas-abiertas ul {
+                grid-template-columns: 1fr;
+            }
+
+            #preguntas-abiertas .nav-link {
+                font-size: 0.8rem;
+                padding: 1rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 id="titulo-principal">Encuesta a Sellers offenders en deflection rate MLB</h1>
+            <div class="fecha-envio">Encuesta de 8 preguntas en total, 4 con respuestas cerradas y 4 con respuestas abiertas enviadas en nov.25 a Sellers offenders [sellers con menos deflection que la media] de MLB MKTP con el objetivo de conocer su experiencia interactuando con Help Assistant</div>
+        </div>
+    </header>
+
+        <div class="container">
+        <!-- Resultados Cuantitativos -->
+        <section class="gauge-section" id="resultados-cuantitativos">
+            <h2 style="color: var(--primary-color); margin-bottom: 2rem; font-size: 1.8rem; border-bottom: 3px solid var(--primary-color); padding-bottom: 0.5rem;">
+                Preguntas de respuestas cerradas (4)
+            </h2>
+
+            <div class="gauge-questions-grid">
+                <!-- Pregunta 1: Satisfacción -->
+                <div class="gauge-wrapper">
+                    <h3 class="gauge-question">En una escala del 1 al 5, ¿cuál es su nivel de satisfacción con el Asistente?</h3>
+                    <div class="bar-chart-container">
+                        <div class="bar-item">
+                            <div class="bar-label">Muy insatisfecho</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 47%;">
+                                    <span class="bar-percentage">47%</span>
+        </div>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-label">Muy satisfecho</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 14%;">
+                                    <span class="bar-percentage">14%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-label">Otros</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 38%;">
+                                    <span class="bar-percentage">38%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pregunta 2: Frecuencia -->
+                <div class="gauge-wrapper">
+                    <h3 class="gauge-question">¿Con qué frecuencia necesita resolver sus dudas o problemas relacionados con sus ventas?</h3>
+                    <div class="bar-chart-container">
+                        <div class="bar-item">
+                            <div class="bar-label">Varias veces por semana</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 32%;">
+                                    <span class="bar-percentage">32%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-label">Rara vez</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 28%;">
+                                    <span class="bar-percentage">28%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-label">Semanalmente</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 24%;">
+                                    <span class="bar-percentage">24%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-label">Mensualmente</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 17%;">
+                                    <span class="bar-percentage">17%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pregunta 3: Utilidad -->
+                <div class="gauge-wrapper">
+                    <h3 class="gauge-question">¿Qué tan útil considera la información ofrecida por el asistente inteligente?</h3>
+                    <div class="bar-chart-container">
+                        <div class="bar-item">
+                            <div class="bar-label">Nada útil</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 34%;">
+                                    <span class="bar-percentage">34%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-label">Poco útil</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 31%;">
+                                    <span class="bar-percentage">31%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-label">Útil</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 18%;">
+                                    <span class="bar-percentage">18%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-label">Muy útil</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 11%;">
+                                    <span class="bar-percentage">11%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-label">No responde</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 6%;">
+                                    <span class="bar-percentage">6%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+
+                <!-- Pregunta 4: Resolución -->
+                <div class="gauge-wrapper">
+                    <h3 class="gauge-question">La última vez que usó el asistente inteligente, ¿pudo resolver su problema?</h3>
+                    <div class="bar-chart-container">
+                        <div class="bar-item">
+                            <div class="bar-label">No</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 76%;">
+                                    <span class="bar-percentage">76%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-label">Sí</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: 24%;">
+                                    <span class="bar-percentage">24%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Preguntas de respuestas abiertas -->
+        <section class="gauge-section" id="preguntas-abiertas">
+            <h2 style="color: var(--primary-color); margin-bottom: 2rem; font-size: 1.8rem; border-bottom: 3px solid var(--primary-color); padding-bottom: 0.5rem;">
+                Preguntas de respuestas abiertas (4) - <span style="font-size: 0.5em;">clic para detalles</span>
+            </h2>
+        <div class="container">
+            <ul>
+                    <li><a href="#analisis-1" class="nav-link">1. Qué problema intentó resolver por autogestión y no pudo 🔗</a></li>
+                    <li><a href="#analisis-2" class="nav-link">2. Por qué no pudo resolver su consulta con Verdi 🔗</a></li>
+                    <li><a href="#analisis-3" class="nav-link">3. En qué situaciones prefiere hablar con un rep 🔗</a></li>
+                    <li><a href="#analisis-4" class="nav-link">4. Cuál es el motivo de preferir hablar con un rep 🔗</a></li>
+            </ul>
+        </div>
+        </section>
+
+        <!-- Resumen Principales Hallazgos -->
+        <section id="resumen">
+            <h2 id="titulo-resumen">Resumen Principales Hallazgos</h2>
+            
+            <div class="hallazgo-card">
+                <h4>1. Falta de Comprensión Contextual</h4>
+                <p>Los vendedores expresan frustración significativa porque el asistente Verdi no comprende adecuadamente los problemas específicos, incluso cuando son explicados claramente. La falta de comprensión contextual es la razón más mencionada para no conseguir resolver problemas.</p>
+            </div>
+
+            <div class="hallazgo-card">
+                <h4>2. Respuestas Genéricas y Automatizadas</h4>
+                <p>Los vendedores rechazan respuestas tipo "copy-paste" que no aplican a casos específicos. El asistente proporciona respuestas pre-programadas sin considerar las variables específicas de cada situación, resultando en soluciones inútiles.</p>
+            </div>
+
+            <div class="hallazgo-card">
+                <h4>3. Dificultad para Acceso a Atención Humana</h4>
+                <p>Una de las quejas más frecuentes es la extrema dificultad para hablar con un atendente humano cuando es necesario. El sistema resiste transferir incluso cuando el usuario lo solicita explícitamente, creando bucles infinitos y frustración.</p>
+            </div>
+
+            <div class="hallazgo-card">
+                <h4>4. Falta de Capacidad de Análisis Crítico</h4>
+                <p>Los vendedores sienten que el asistente no puede razonar, analizar evidencia o tomar decisiones basadas en contexto. El asistente carece de capacidad para análisis crítico y se limita a seguir scripts predefinidos.</p>
+            </div>
+
+            <div class="hallazgo-card">
+                <h4>5. Preferencia Generalizada por Atención Humana</h4>
+                <p>Una mayoría significativa de vendedores prefiere hablar con representantes en todas o casi todas las situaciones, valorando la interacción humana y la capacidad de entender contexto y proporcionar soluciones personalizadas.</p>
+            </div>
+
+            <div class="hallazgo-card">
+                <h4>6. Problemas con Reputación y Devoluciones</h4>
+                <p>Los problemas más mencionados están relacionados con reputación afectada injustamente, devoluciones automáticas sin análisis adecuado de evidencia, y decisiones que favorecen compradores sin considerar la perspectiva del vendedor.</p>
+            </div>
+
+            <div class="hallazgo-card">
+                <h4>7. Humanos Entienden Mejor</h4>
+                <p>La razón más mencionada para preferir humanos es que ellos entienden mejor el problema y la situación. Los vendedores valoran la capacidad humana de análisis, razonamiento y tratamiento individualizado de casos.</p>
+            </div>
+
+            <div class="hallazgo-card">
+                <h4>8. Agilidad y Resolución Efectiva</h4>
+                <p>Los vendedores perciben que los humanos resuelven más rápido y de forma más directa, evitando bucles y respuestas que no resuelven. Los humanos resuelven efectivamente los problemas, mientras que el asistente frecuentemente solo proporciona información o no resuelve.</p>
+            </div>
+        </section>
+
+        <!-- Análisis 1 -->
+        <section id="analisis-1" style="display: none;">
+            <h2>1. Qué problema intentó resolver por autogestión y no pudo</h2>
+
+            <h3>Temas Principales Identificados</h3>
+
+            <div class="issue-card">
+                <h4>1. Problemas de Reputação e Impactos (≈85 menciones)</h4>
+                <div class="count">Los vendedores reportan frecuentemente que Verdi no puede ayudar adecuadamente con problemas de reputación afectada injustamente.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"Tirar problemas de reputação"</li>
+                        <li>"Impacto da minha reputação"</li>
+                        <li>"Revisar a Reputação Negativa criada pela Plataforma devida o atraso no envio dos dados do comprador"</li>
+                        <li>"Reputação afetada, mesmo tendo mensagens e imagens que comprovem que foi afetado injustamente o assistente não analisa. Simplesmente descarta e dá razão ao comprador"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> El asistente no analiza evidencia proporcionada por el vendedor y tiende a dar razón automáticamente al comprador.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>2. Devoluciones y Reembolsos (≈75 menciones)</h4>
+                <div class="count">Problemas relacionados con devoluciones injustas, productos devueltos dañados por el comprador, y reembolsos automáticos sin consultar al vendedor.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"Devolução de produto usado de forma indevida causando danos no mesmo"</li>
+                        <li>"PRODUTO DEVOLVIDO DANIFICADO PELO COMPRADOR"</li>
+                        <li>"Todas onde ele toma decisões unilaterais, devolvendo dinheiro e produto ao cliente sem me consultar"</li>
+                        <li>"Respostas sem sentido e com soluções que estão nos prejudicando, devoluções sem necessidade que poderiam ser resolvidos simplesmente falando com o cliente"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> El asistente procesa devoluciones automáticamente sin permitir comunicación previa entre vendedor y comprador, y sin analizar adecuadamente la evidencia.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>3. Problemas con Anúncios (≈70 menciones)</h4>
+                <div class="count">Anuncios pausados, bloqueados, categorizados incorrectamente, o que no aparecen en búsquedas.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"Anuncio pausado varios outros"</li>
+                        <li>"Reativação de anúncio paisado"</li>
+                        <li>"Meu anúncio não estava aparecendo nas buscas"</li>
+                        <li>"Anúncios pausados injustamente, acusações mentirosas imprópria ofensiva referente aos nossos produtos ofertados"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> Falta de explicaciones claras sobre por qué un anuncio fue pausado o bloqueado, y dificultad para apelar estas decisiones.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>4. Necesidad de Atención Humana (≈90 menciones)</h4>
+                <div class="count">Una de las quejas más frecuentes es la dificultad para hablar con un atendente humano cuando se necesita.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"Muitas vezes quero falar com um atendente e ele diz que isso não é permitido"</li>
+                        <li>"Quando ela não compreendia o que estava falando e não me encaminhava para falar com um assistente humano"</li>
+                        <li>"São várias e nenhuma resolveu ... a inteligência deveria estar configurada para que se pedirmos para falar com um HUMANO imediatamente transferisse para o mesmo mas fica enrolando na tentativa de fazermos desistir"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> El sistema resiste transferir a atención humana incluso cuando el usuario lo solicita explícitamente, y a veces proporciona links que no funcionan.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>5. Problemas de Comprensión del Asistente (≈80 menciones)</h4>
+                <div class="count">El asistente no entiende el problema o la solicitud del vendedor.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"péssimo, ele não entende nada!"</li>
+                        <li>"ele não consegue entender que o produto não foi entre para o cliente"</li>
+                        <li>"A AI não consegue intender o problemas, mesmo, que tenhamos um protocolos em mãos"</li>
+                        <li>"o simples comando de falar com um assistente ela não entende"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> El asistente tiene dificultades para comprender el contexto y los detalles específicos de cada caso.</p>
+            </div>
+
+            <h3>Motivos por los que no logra resolver su consulta</h3>
+
+            <div class="clasificacion-item">
+                <h4>1. Comprensión (≈80 comentarios, 20%)</h4>
+                <div class="count">El asistente no entiende el problema o la solicitud del vendedor, incluso cuando se proporciona información detallada o protocolos.</div>
+            </div>
+
+            <div class="clasificacion-item">
+                <h4>2. Información Insuficiente (≈70 comentarios, 17.5%)</h4>
+                <div class="count">Respuestas genéricas, obvias, o repetitivas que no proporcionan soluciones específicas al caso.</div>
+            </div>
+
+            <div class="clasificacion-item">
+                <h4>3. Respuestas Inadecuadas (≈65 comentarios, 16.25%)</h4>
+                <div class="count">El asistente no resuelve el problema o proporciona soluciones que no aplican.</div>
+            </div>
+
+            <div class="clasificacion-item">
+                <h4>4. Transferencia a Humano (≈90 comentarios, 22.5%)</h4>
+                <div class="count">Dificultad extrema para hablar con un atendente humano cuando se necesita.</div>
+            </div>
+
+            <h3>Frustraciones Más Comunes</h3>
+            <div class="frustracion-item">
+                <span>"não resolve" / "não resolveu"</span>
+                <div class="bar" style="width: 45%;">≈45 menciones</div>
+            </div>
+            <div class="frustracion-item">
+                <span>"não entende" / "não entendeu"</span>
+                <div class="bar" style="width: 40%;">≈40 menciones</div>
+            </div>
+            <div class="frustracion-item">
+                <span>"precisa de humano" / "falar com atendente"</span>
+                <div class="bar" style="width: 35%;">≈35 menciones</div>
+            </div>
+            <div class="frustracion-item">
+                <span>"genérica" / "generica"</span>
+                <div class="bar" style="width: 25%;">≈25 menciones</div>
+            </div>
+        </section>
+
+        <!-- Análisis 2 -->
+        <section id="analisis-2" style="display: none;">
+            <h2>2. Por qué no pudo resolver su consulta con Verdi</h2>
+
+            <h3>Temas Principales Identificados</h3>
+
+            <div class="issue-card">
+                <h4>1. Falta de Comprensión del Asistente (≈120 menciones)</h4>
+                <div class="count">Los vendedores reportan frecuentemente que Verdi no entiende sus problemas o solicitudes, incluso cuando se explican claramente.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"Ele não entende exatamente o que preciso"</li>
+                        <li>"Ela não entende nada, prefiro atendimento humano!"</li>
+                        <li>"o Assitente não consegue entender a dificuldade que estamos passando, e não passa para o atendimento humano deixando em um loop infinito"</li>
+                        <li>"Não entende de fato problemas causados pelo consumidor"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> El asistente tiene dificultades significativas para compreender el contexto, las solicitudes específicas y los problemas complejos que los vendedores intentan resolver.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>2. Respuestas Genéricas y Automatizadas (≈90 menciones)</h4>
+                <div class="count">Problemas relacionados con respuestas pre-programadas, genéricas, que no aplican al caso específico del vendedor.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"Ele só traz informações pré prontas"</li>
+                        <li>"É um atendimento automatizado que nao funciona, nao avalia as reais variaveis do problema"</li>
+                        <li>"As respostas são sempre genéricas e não resolvem minhas duvidas"</li>
+                        <li>"PORQUE ELA TEM RESPOSTAS PRONTAS, E OS PROBLEMAS SAO PONTUAIS, E SENDO ASSIM FICAMOS SEM OPÇÕES"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> El asistente proporciona respuestas tipo "copy-paste" sin considerar las variables específicas de cada caso, resultando en soluciones que no aplican.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>3. Falta de Capacidad de Análisis Crítico (≈70 menciones)</h4>
+                <div class="count">Los vendedores sienten que el asistente no puede razonar, analizar evidencia o tomar decisiones basadas en contexto.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"PORQUE ELE NÃO TEM CAPACIDADE DE RACIOCINIO E ANALISE CRÍTICA"</li>
+                        <li>"O assistente analisa friamente as questões como um robô deve ser, mas infelizmente a maioria dos casos devem ser analisados do ponto de vista humano"</li>
+                        <li>"SIMPLES ASSIM: O ROBOZINHO NÃO POSSUI CAPACIDADE DE ANALISE CRITICA"</li>
+                        <li>"Ele não tem discernimento, e acaba avaliando deveras ruim as informações passadas"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> El asistente carece de capacidad para razonar, analizar contexto completo y tomar decisiones basadas en evidencia, limitándose a seguir scripts predefinidos.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>4. Dificultad para Acceder a Atención Humana (≈75 menciones)</h4>
+                <div class="count">Problemas para ser transferido a un atendente humano cuando se necesita, o cuando el asistente no transfiere adecuadamente.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"Queria falar, conversar com um atendente e a inteligência não estava me dando essa opção!"</li>
+                        <li>"Ele não sabia resolver e não me passou para um humano"</li>
+                        <li>"Porque o assistente não entende o meu problema e nem me dá a opção de falar com um assistente humano"</li>
+                        <li>"Não consigo falar com um humano"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> El asistente resiste transferir a atención humana incluso cuando no puede resolver el problema, creando bucles infinitos y frustración.</p>
+            </div>
+
+            <h3>Motivos por los que no logra resolver su consulta</h3>
+
+            <div class="clasificacion-item">
+                <h4>1. Falta de Comprensión (≈120 comentarios, 30%)</h4>
+                <div class="count">El asistente no entiende el problema, la solicitud o el contexto del vendedor.</div>
+            </div>
+
+            <div class="clasificacion-item">
+                <h4>2. Respuestas Genéricas (≈90 comentarios, 22.5%)</h4>
+                <div class="count">Respuestas automatizadas, pre-programadas, que no aplican al caso específico.</div>
+            </div>
+
+            <div class="clasificacion-item">
+                <h4>3. Falta de Análisis Crítico (≈70 comentarios, 17.5%)</h4>
+                <div class="count">El asistente no puede razonar, analizar evidencia o tomar decisiones basadas en contexto.</div>
+            </div>
+
+            <div class="clasificacion-item">
+                <h4>4. Dificultad para Atención Humana (≈75 comentarios, 18.75%)</h4>
+                <div class="count">Problemas para acceder a atención humana cuando se necesita.</div>
+            </div>
+
+            <h3>Frustraciones Más Comunes</h3>
+            <div class="frustracion-item">
+                <span>"não entende" / "não entendeu"</span>
+                <div class="bar" style="width: 80%;">≈80 menciones</div>
+            </div>
+            <div class="frustracion-item">
+                <span>"não resolve" / "não resolveu"</span>
+                <div class="bar" style="width: 65%;">≈65 menciones</div>
+            </div>
+            <div class="frustracion-item">
+                <span>"precisa de humano" / "atendimento humano"</span>
+                <div class="bar" style="width: 60%;">≈60 menciones</div>
+            </div>
+            <div class="frustracion-item">
+                <span>"genérico" / "generica"</span>
+                <div class="bar" style="width: 45%;">≈45 menciones</div>
+            </div>
+        </section>
+
+        <!-- Análisis 3 -->
+        <section id="analisis-3" style="display: none;">
+            <h2>3. En qué situaciones prefiere hablar con un representante</h2>
+
+            <h3>Temas Principales Identificados</h3>
+
+            <div class="issue-card">
+                <h4>1. Preferencia por Atención Humana en Todas las Situaciones (≈180 menciones)</h4>
+                <div class="count">Una gran mayoría de vendedores expresan que prefieren hablar con un representante en todas o casi todas las situaciones.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"Sempre"</li>
+                        <li>"Em todas as situações!"</li>
+                        <li>"Todas"</li>
+                        <li>"Em todas prefiro falar com um representante"</li>
+                        <li>"TODAS AS SITUAÇÕES"</li>
+                        <li>"Sempre prefiro falar com gente"</li>
+                        <li>"Em todas as situações, prefiro falar com ser humano"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> Existe una preferencia generalizada y fuerte por atención humana sobre el asistente virtual, independientemente de la situación específica.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>2. Casos Complejos que Requieren Análisis Humano (≈85 menciones)</h4>
+                <div class="count">Situaciones complejas que requieren análisis detallado, razonamiento y toma de decisiones que el asistente no puede proporcionar.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"ASSUNTOS MAIS COMPLEXOS, QUE A IA NÃO CONSEGUE ENTENDER"</li>
+                        <li>"Problemas pontuais e específicos"</li>
+                        <li>"Quando houver necessidade de informações mais complexas"</li>
+                        <li>"Quando o assunto é muito difícil de explicar por escrito"</li>
+                        <li>"Quando for algo que necessite de um cuidado maior, uma profundidade de resposta maior, algo realmente mais humano"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> Los vendedores reconocen que casos complejos requieren análisis humano que el asistente virtual no puede proporcionar.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>3. Problemas de Reputación e Impactos (≈70 menciones)</h4>
+                <div class="count">Situaciones relacionadas con impactos en reputación, contestaciones y exclusiones de impactos negativos.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"Em situações de contestação de reputação"</li>
+                        <li>"Quando precisa resolver algum problema de reputação ou falha de venda"</li>
+                        <li>"retirar impacto negativos da reputação"</li>
+                        <li>"problemas que geram impacto na reputação"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> Los problemas de reputación requieren análisis detallado y decisiones que los vendedores prefieren discutir con un representante humano.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>4. Cuando el Asistente No Entiende (≈55 menciones)</h4>
+                <div class="count">Situaciones donde el asistente no comprende el problema o la solicitud del vendedor.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"quando ele não entende o meu problema"</li>
+                        <li>"Em situações mais específicas, que o assistente nao consegue identificar o problema"</li>
+                        <li>"em todas as situações, o assitente não compreende o problema e não resolve"</li>
+                        <li>"Todas, o assistente nem entende o que estou falando"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> Cuando el asistente no comprende el problema, los vendedores necesitan hablar con un representante para explicar su situación.</p>
+            </div>
+
+            <h3>Motivos por los que no logra resolver su consulta</h3>
+
+            <div class="clasificacion-item">
+                <h4>1. Preferencia General por Atención Humana (≈180 comentarios, 45%)</h4>
+                <div class="count">Los vendedores prefieren hablar con un representante en todas o casi todas las situaciones, independientemente del tipo de problema.</div>
+            </div>
+
+            <div class="clasificacion-item">
+                <h4>2. Casos Complejos (≈85 comentarios, 21.25%)</h4>
+                <div class="count">Problemas que requieren análisis detallado, razonamiento complejo y decisiones basadas en contexto.</div>
+            </div>
+
+            <div class="clasificacion-item">
+                <h4>3. Problemas de Reputación (≈70 comentarios, 17.5%)</h4>
+                <div class="count">Situaciones relacionadas con impactos en reputación que requieren análisis y decisiones importantes.</div>
+            </div>
+
+            <div class="clasificacion-item">
+                <h4>4. Cuando IA No Entiende (≈55 comentarios, 13.75%)</h4>
+                <div class="count">Situaciones donde el asistente no comprende el problema y se necesita explicar a un humano.</div>
+            </div>
+        </section>
+
+        <!-- Análisis 4 -->
+        <section id="analisis-4" style="display: none;">
+            <h2>4. Cuál es el motivo de preferir hablar con un representante</h2>
+
+            <h3>Temas Principales Identificados</h3>
+
+            <div class="issue-card">
+                <h4>1. Mejor Comprensión del Problema (≈140 menciones)</h4>
+                <div class="count">Los vendedores expresan que los humanos entienden mejor su problema, situación y necesidades.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"eles conseguem entender melhor o que preciso e dar a solucao"</li>
+                        <li>"Consegue entender a situação"</li>
+                        <li>"um humano entende melhor"</li>
+                        <li>"O atendente é um humano que vai entender o que eu estou falando, o assitente é limitado e não compreende o que eu falo"</li>
+                        <li>"Mais assertividade para entender o real problema"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> Los vendedores perciben que los humanos tienen una capacidad superior de comprensión que les permite entender mejor el problema real y proporcionar soluciones adecuadas.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>2. Capacidad de Análisis y Razonamiento (≈90 menciones)</h4>
+                <div class="count">Los vendedores valoran la capacidad humana de analizar, razonar y tratar cada caso de forma individualizada.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"O atendente vai realmente entender o meu problema, vai tratar cada caso de um jeito, analisar as variaveis e tentar resolver logicamente da melhor forma possivel para cada usuario"</li>
+                        <li>"Pela possibilidade de interpretação que o robô não tem, pelo robô é '0 ou 1', com atendimento humano ele consegue interpretar a situação que nem sempre é algo simples assim como o robô tenta fazer"</li>
+                        <li>"Um humano consegue analisar de forma flexível e ajudar no melhor para ambos os lados"</li>
+                        <li>"Tratativa e resolução assertiva e personalizada"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> Los vendedores valoran la capacidad humana de analizar variables, interpretar situaciones complejas y proporcionar soluciones lógicas adaptadas a cada caso específico.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>3. Mayor Agilidad y Rapidez (≈75 menciones)</h4>
+                <div class="count">Los vendedores perciben que los humanos resuelven más rápido y de forma más directa.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"Maior compreensão do problema e resposta mais rápida"</li>
+                        <li>"AGILIDADE E OBJETIVIDADE NA SOLUÇÃO DAS DEMANDAS"</li>
+                        <li>"Soluções de imediato"</li>
+                        <li>"Consegue resolver com mais agilidade e vai direto ao problema"</li>
+                        <li>"Mais rápido"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> Los vendedores perciben que los humanos proporcionan soluciones más rápidas y directas, evitando bucles y respuestas que no resuelven.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>4. Evitar Respuestas Genéricas y Repetitivas (≈65 menciones)</h4>
+                <div class="count">Los vendedores rechazan las respuestas genéricas, repetitivas y automatizadas del asistente.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"não ter que ficar repetindo as mesmas coisas, e ele trazendo mensagem pronta, de coisas que já fiz e não resolver"</li>
+                        <li>"Porque ele dá uma resposta, você questiona e ele fala a mesma coisa"</li>
+                        <li>"As respostas dele são genéricas sempre direcionando pras diretrizes e regras que já sei e não respondem minhas perguntas"</li>
+                        <li>"Porque respostas prontas e genéricas me irritam"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> Los vendedores se frustran con respuestas genéricas y repetitivas que no abordan su problema específico y no permiten un diálogo fluido.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>5. Resolución Efectiva de Problemas (≈80 menciones)</h4>
+                <div class="count">Los vendedores expresan que los humanos resuelven efectivamente los problemas, mientras que el asistente no lo hace.</div>
+                <div class="comentarios">
+                    <strong>Comentarios de los sellers:</strong>
+                    <ul>
+                        <li>"por o humano resolve o problema"</li>
+                        <li>"Quero solução"</li>
+                        <li>"porque o assistente não resolve"</li>
+                        <li>"Eles sempre resolvem"</li>
+                        <li>"Todas soluções ate hoje resolvidas, foi por atendimento humano"</li>
+                    </ul>
+                </div>
+                <p><strong>Issue identificado:</strong> Los vendedores perciben que el asistente no resuelve efectivamente los problemas, mientras que los humanos sí lo hacen o al menos intentan hacerlo de manera más efectiva.</p>
+            </div>
+
+            <h3>Motivos por los que no logra resolver su consulta</h3>
+
+            <div class="clasificacion-item">
+                <h4>1. Falta de Comprensión (≈140 comentarios, 35%)</h4>
+                <div class="count">El asistente no comprende adecuadamente el problema, situación o necesidades del vendedor.</div>
+            </div>
+
+            <div class="clasificacion-item">
+                <h4>2. Falta de Análisis y Razonamiento (≈90 comentarios, 22.5%)</h4>
+                <div class="count">El asistente no puede analizar variables, razonar sobre situaciones complejas o tratar casos de forma individualizada.</div>
+            </div>
+
+            <div class="clasificacion-item">
+                <h4>3. Falta de Agilidad (≈75 comentarios, 18.75%)</h4>
+                <div class="count">El asistente no proporciona soluciones rápidas y directas, creando bucles y pérdida de tiempo.</div>
+            </div>
+
+            <div class="clasificacion-item">
+                <h4>4. Respuestas Genéricas (≈65 comentarios, 16.25%)</h4>
+                <div class="count">El asistente proporciona respuestas genéricas, repetitivas y automatizadas que no abordan el problema específico.</div>
+            </div>
+
+            <div class="clasificacion-item">
+                <h4>5. Falta de Resolución (≈80 comentarios, 20%)</h4>
+                <div class="count">El asistente no resuelve efectivamente los problemas, solo proporciona información o respuestas que no solucionan.</div>
+            </div>
+        </section>
+    </div>
+
+
+    <script>
+        // Navegación y funcionalidad
+
+        // Navegación suave
+        function inicializarNavegacion() {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    
+                    if (targetSection) {
+                        // Ocultar todas las secciones de análisis
+                        document.querySelectorAll('section[id^="analisis-"]').forEach(sec => {
+                            sec.style.display = 'none';
+                        });
+                        
+                        // Mostrar la sección seleccionada
+                        targetSection.style.display = 'block';
+                        
+                        // Scroll suave a la sección
+                        setTimeout(() => {
+                            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 50);
+                        
+                        // Actualizar links activos
+                        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // Inicializar navegación al cargar la página
+        document.addEventListener('DOMContentLoaded', inicializarNavegacion);
+
+        // Funcionalidad del botón Volver al Inicio
+        document.addEventListener('DOMContentLoaded', () => {
+            const volverInicio = document.querySelector('.volver-inicio');
+            if (volverInicio) {
+                volverInicio.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = volverInicio.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    
+                    if (targetSection) {
+                        // Ocultar todas las secciones de análisis si están visibles
+                        document.querySelectorAll('section[id^="analisis-"]').forEach(sec => {
+                            sec.style.display = 'none';
+                        });
+                        
+                        // Scroll suave al inicio
+                        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else {
+                        // Si no encuentra la sección, hacer scroll al top
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                });
+            }
+        });
+
+    </script>
+
+    <!-- Botón Volver al Inicio -->
+    <a href="#resultados-cuantitativos" class="volver-inicio">Volver al Inicio</a>
+</body>
+</html>
+
